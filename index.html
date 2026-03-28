@@ -1,11 +1,557 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>SS Dev Studio</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content="AppNetOff – Control your internet access, block apps, and protect your privacy."/>
+<title>AppNetOff – Private by Design</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+/* RESET */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+
+/* VARIABLES */
+:root{
+  --bg:#070d18;--bg-card:#0d1525;--bg-card2:#111e30;
+  --cyan:#00e5ff;--purple:#7c5cfc;--green:#00e5a0;--red:#e8453c;--orange:#e67e22;
+  --text:#e8edf5;--muted:#6b7a93;--border:rgba(255,255,255,0.07);
+  --r:14px;--r-lg:22px;--r-xl:32px;
+}
+
+/* BASE */
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:'Syne',sans-serif;letter-spacing:-0.02em;line-height:1.1}
+a{text-decoration:none;color:inherit}
+
+/* LAYOUT */
+.wrap{max-width:1100px;margin:0 auto;padding:0 20px}
+section{position:relative;padding:90px 0}
+
+/* ORB */
+.orb{position:absolute;border-radius:50%;filter:blur(90px);pointer-events:none;z-index:0}
+
+/* CHIP */
+.chip{display:inline-block;font-size:0.68rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--cyan);background:rgba(0,229,255,0.08);border:1px solid rgba(0,229,255,0.18);border-radius:99px;padding:4px 14px;margin-bottom:16px}
+
+/* BUTTONS — using <a> with href for reliable redirects */
+.btn{display:inline-flex;align-items:center;gap:9px;font-family:'Syne',sans-serif;font-weight:700;font-size:0.95rem;padding:13px 28px;border-radius:99px;border:none;cursor:pointer;text-decoration:none;transition:transform 0.18s,box-shadow 0.18s;-webkit-tap-highlight-color:transparent;user-select:none}
+.btn-glow{background:linear-gradient(135deg,var(--cyan),var(--purple));color:#070d18}
+.btn-glow:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,229,255,0.3)}
+.btn-glow:active{transform:scale(0.97)}
+.btn-outline{background:transparent;color:var(--cyan);border:1.5px solid rgba(0,229,255,0.4)}
+.btn-outline:hover{background:rgba(0,229,255,0.07);transform:translateY(-2px)}
+.btn-outline:active{transform:scale(0.97)}
+
+/* NAVBAR */
+#nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:16px 0;transition:background 0.3s,border-color 0.3s}
+#nav.stuck{background:rgba(7,13,24,0.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.nav-row{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.25rem;display:flex;align-items:center;gap:8px}
+.nav-dot{width:9px;height:9px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan);animation:blink 2.2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.4;transform:scale(0.8)}}
+.nav-links{display:flex;gap:28px;list-style:none}
+.nav-links a{color:var(--muted);font-size:0.88rem;transition:color 0.2s}
+.nav-links a:hover{color:var(--cyan)}
+.nav-dl{font-size:0.84rem !important;padding:10px 20px !important}
+
+/* BURGER */
+.burger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;background:none;border:none;-webkit-tap-highlight-color:transparent}
+.burger span{display:block;width:22px;height:2px;background:var(--text);border-radius:2px}
+.mob-menu{display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:190;background:rgba(7,13,24,0.97);backdrop-filter:blur(20px);flex-direction:column;align-items:center;justify-content:center;gap:30px}
+.mob-menu.open{display:flex}
+.mob-menu a{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:700;color:var(--text);transition:color 0.2s}
+.mob-menu a:hover{color:var(--cyan)}
+.mob-close{position:absolute;top:20px;right:24px;background:none;border:none;color:var(--text);font-size:1.6rem;cursor:pointer;padding:8px;-webkit-tap-highlight-color:transparent}
+@media(max-width:700px){.nav-links{display:none}.burger{display:flex}}
+
+/* HERO */
+#hero{min-height:100vh;display:flex;align-items:center;padding-top:100px;padding-bottom:60px;overflow:hidden}
+.hero-grid{position:relative;z-index:1;display:grid;grid-template-columns:1fr 440px;gap:40px;align-items:center}
+.hero-text h1{font-size:clamp(2.3rem,4vw,3.6rem);font-weight:800;margin-bottom:18px}
+.hero-text h1 .hl{background:linear-gradient(90deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-tagline{color:var(--cyan);font-size:1rem;font-weight:500;margin-bottom:14px}
+.hero-desc{color:var(--muted);font-size:1rem;max-width:430px;margin-bottom:32px;line-height:1.75}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap}
+.orb1{width:500px;height:500px;background:radial-gradient(circle,rgba(0,229,255,0.1),transparent 70%);top:-80px;left:-120px;animation:d1 14s ease-in-out infinite alternate}
+.orb2{width:400px;height:400px;background:radial-gradient(circle,rgba(124,92,252,0.12),transparent 70%);bottom:-60px;right:-80px;animation:d2 17s ease-in-out infinite alternate}
+@keyframes d1{to{transform:translate(50px,40px)}}
+@keyframes d2{to{transform:translate(-40px,-50px)}}
+@media(max-width:900px){.hero-grid{grid-template-columns:1fr;text-align:center}.hero-desc{max-width:100%}.hero-btns{justify-content:center}.phone-wrap{display:none}}
+
+/* ══ PHONE MOCKUP ══════════════════════════════ */
+.phone-wrap{display:flex;justify-content:center;align-items:center;position:relative}
+.phone{width:255px;background:#080f1e;border-radius:40px;border:2px solid rgba(255,255,255,0.1);box-shadow:0 40px 80px rgba(0,0,0,0.7),inset 0 1px 0 rgba(255,255,255,0.06);overflow:hidden;display:flex;flex-direction:column;animation:float 4s ease-in-out infinite;position:relative;z-index:2}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+
+.p-status{display:flex;justify-content:space-between;align-items:center;padding:10px 16px 4px;font-size:0.5rem;color:rgba(255,255,255,0.55);flex-shrink:0}
+.p-vpntag{background:#1a6bff;color:#fff;font-size:0.4rem;font-weight:800;padding:1px 5px;border-radius:3px;letter-spacing:0.05em}
+.p-header{display:flex;align-items:center;justify-content:space-between;padding:2px 16px 10px;flex-shrink:0}
+.p-appname{font-family:'Syne',sans-serif;font-size:1rem;font-weight:800}
+.p-appname .off{color:#e8453c}
+.p-icons{display:flex;gap:9px;font-size:0.78rem;color:rgba(255,255,255,0.6)}
+
+.p-banner{margin:0 12px 10px;background:linear-gradient(135deg,#162035,#1a2a40);border-radius:16px;padding:11px 13px;display:flex;align-items:center;gap:11px;flex-shrink:0;border:1px solid rgba(255,255,255,0.05)}
+.p-shield{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.p-ban-title{font-family:'Syne',sans-serif;font-size:0.6rem;font-weight:800;letter-spacing:0.04em;margin-bottom:3px}
+.p-ban-sub{font-size:0.46rem;color:rgba(255,255,255,0.4);line-height:1.5}
+
+.p-search{margin:0 12px 10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:7px 12px;font-size:0.52rem;color:rgba(255,255,255,0.32);display:flex;align-items:center;gap:6px;flex-shrink:0}
+
+.p-applist{padding:0 12px;display:flex;flex-direction:column;gap:8px;overflow:hidden}
+.p-appcard{background:rgba(255,255,255,0.05);border-radius:14px;padding:9px 11px;display:flex;align-items:center;gap:10px;border:1px solid rgba(255,255,255,0.04)}
+.p-ico{width:36px;height:36px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+.p-info{flex:1}
+.p-name{font-size:0.59rem;font-weight:700;margin-bottom:1px}
+.p-pkg{font-size:0.44rem;color:rgba(255,255,255,0.3)}
+.p-toggles{display:flex;flex-direction:column;gap:5px;align-items:flex-end}
+.p-trow{display:flex;align-items:center;gap:4px}
+.p-ticon{font-size:0.46rem;color:rgba(255,255,255,0.32)}
+.tog{width:26px;height:14px;border-radius:99px;position:relative;flex-shrink:0}
+.tog.on{background:#e67e22}
+.tog.off{background:rgba(255,255,255,0.12)}
+.tog::after{content:'';position:absolute;top:2px;width:10px;height:10px;background:#fff;border-radius:50%}
+.tog.on::after{left:14px}
+.tog.off::after{left:2px}
+
+.p-guard{margin:8px 12px;background:linear-gradient(135deg,#d63830,#a02828);border-radius:14px;padding:10px 13px;display:flex;align-items:center;justify-content:flex-end;gap:8px;font-family:'Syne',sans-serif;font-size:0.62rem;font-weight:800;letter-spacing:0.07em;box-shadow:0 4px 18px rgba(214,56,48,0.45);flex-shrink:0}
+.p-tabs{display:flex;border-top:1px solid rgba(255,255,255,0.06);padding:6px 0 8px;flex-shrink:0}
+.p-tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:0.42rem;color:rgba(255,255,255,0.32)}
+.p-tab.active{color:rgba(255,255,255,0.85)}
+.p-tab-i{font-size:0.82rem}
+
+.fbadge{position:absolute;z-index:3;font-family:'Syne',sans-serif;font-size:0.7rem;font-weight:700;border-radius:12px;padding:10px 14px;white-space:nowrap}
+.fbadge1{right:-16px;top:70px;background:linear-gradient(135deg,var(--purple),#4a2fa8);box-shadow:0 8px 28px rgba(124,92,252,0.45);animation:float 4s ease-in-out 1s infinite}
+.fbadge2{left:-16px;bottom:90px;background:rgba(0,229,160,0.12);border:1px solid rgba(0,229,160,0.35);color:var(--green);animation:float 4s ease-in-out 2s infinite}
+
+/* SECTION HEADER */
+.sec-head{text-align:center;margin-bottom:52px}
+.sec-head h2{font-size:clamp(1.8rem,3vw,2.6rem);font-weight:800;margin-bottom:12px}
+.sec-head p{color:var(--muted);font-size:0.98rem;max-width:480px;margin:0 auto}
+
+/* FEATURES */
+#features{background:linear-gradient(180deg,var(--bg),#080f1e,var(--bg))}
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:820px){.feat-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.feat-grid{grid-template-columns:1fr}}
+.fc{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg);padding:28px 22px;transition:transform 0.22s,border-color 0.22s,box-shadow 0.22s;position:relative;overflow:hidden}
+.fc::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,229,255,0.04),transparent);opacity:0;transition:opacity 0.22s}
+.fc:hover{transform:translateY(-4px);border-color:rgba(0,229,255,0.22);box-shadow:0 14px 40px rgba(0,0,0,0.4)}
+.fc:hover::after{opacity:1}
+.fci{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.25rem;margin-bottom:16px}
+.ic{background:rgba(0,229,255,0.09);border:1px solid rgba(0,229,255,0.16)}
+.ip{background:rgba(124,92,252,0.1);border:1px solid rgba(124,92,252,0.2)}
+.ig{background:rgba(0,229,160,0.09);border:1px solid rgba(0,229,160,0.16)}
+.fc h3{font-size:0.98rem;font-weight:700;margin-bottom:8px}
+.fc p{color:var(--muted);font-size:0.86rem;line-height:1.65}
+
+/* HOW IT WORKS */
+#how{background:linear-gradient(180deg,transparent,rgba(124,92,252,0.03),transparent)}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;position:relative}
+.steps::before{content:'';position:absolute;top:31px;left:calc(16.67% + 14px);right:calc(16.67% + 14px);height:1px;background:linear-gradient(90deg,var(--cyan),var(--purple));opacity:0.18}
+@media(max-width:650px){.steps{grid-template-columns:1fr}.steps::before{display:none}}
+.step{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg);padding:30px 22px;text-align:center;transition:transform 0.22s,box-shadow 0.22s}
+.step:hover{transform:translateY(-4px);box-shadow:0 18px 44px rgba(0,0,0,0.35)}
+.snum{width:46px;height:46px;border-radius:50%;margin:0 auto 16px;background:linear-gradient(135deg,var(--cyan),var(--purple));font-family:'Syne',sans-serif;font-weight:800;font-size:0.95rem;color:#070d18;display:flex;align-items:center;justify-content:center;box-shadow:0 0 18px rgba(0,229,255,0.22)}
+.semo{font-size:1.7rem;margin-bottom:11px}
+.step h3{font-size:0.98rem;margin-bottom:9px}
+.step p{color:var(--muted);font-size:0.86rem}
+
+/* SCREENS */
+.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;align-items:start}
+@media(max-width:820px){.sgrid{grid-template-columns:1fr;max-width:360px;margin:0 auto}}
+.scard{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-xl);overflow:hidden;transition:transform 0.22s,box-shadow 0.22s}
+.scard:hover{transform:translateY(-5px);box-shadow:0 20px 50px rgba(0,0,0,0.5),0 0 0 1px rgba(0,229,255,0.07)}
+.scard:nth-child(2){transform:translateY(16px)}
+.scard:nth-child(2):hover{transform:translateY(10px)}
+@media(max-width:820px){.scard:nth-child(2){transform:none}.scard:nth-child(2):hover{transform:translateY(-5px)}}
+.sbody{background:linear-gradient(160deg,#121d30,#090f1c);padding:16px;min-height:270px}
+.slabel{padding:12px 16px;border-top:1px solid var(--border);font-family:'Syne',sans-serif;font-size:0.74rem;font-weight:700;color:var(--muted);display:flex;align-items:center;gap:7px}
+.slabel::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 7px var(--cyan)}
+
+.srow{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.stitle{font-family:'Syne',sans-serif;font-size:0.8rem;font-weight:700}
+.sbadge{background:rgba(0,229,255,0.1);color:var(--cyan);font-size:0.52rem;font-weight:700;padding:3px 9px;border-radius:99px}
+.ring{width:96px;height:96px;border-radius:50%;background:conic-gradient(var(--cyan) 258deg,rgba(255,255,255,0.05) 258deg);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;box-shadow:0 0 20px rgba(0,229,255,0.14)}
+.ring-in{width:76px;height:76px;border-radius:50%;background:#0a1120;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.ri{font-size:1.2rem}
+.rt{font-size:0.44rem;font-weight:700;color:var(--cyan);letter-spacing:0.08em}
+.sgrid2{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.sbox{background:rgba(255,255,255,0.04);border-radius:9px;padding:8px 10px}
+.sval{font-family:'Syne',sans-serif;font-size:0.85rem;font-weight:700;color:var(--cyan)}
+.slbl{font-size:0.48rem;color:var(--muted);margin-top:1px}
+
+.ss{background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:9px;padding:7px 10px;font-size:0.56rem;color:var(--muted);margin-bottom:11px;display:flex;align-items:center;gap:5px}
+.ssec{font-size:0.48rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:6px;font-weight:700}
+.sr{display:flex;align-items:center;justify-content:space-between;padding:7px 9px;border-radius:9px;margin-bottom:5px;background:rgba(255,255,255,0.03)}
+.srl{display:flex;align-items:center;gap:8px}
+.sn{font-size:0.58rem;font-weight:600}
+.ssb{font-size:0.44rem;color:var(--muted)}
+.cbl{font-size:0.44rem;padding:2px 7px;border-radius:99px;font-weight:700;background:rgba(255,80,80,0.12);color:#ff5555}
+.cal{font-size:0.44rem;padding:2px 7px;border-radius:99px;font-weight:700;background:rgba(0,229,160,0.1);color:var(--green)}
+
+.s3big{font-family:'Syne',sans-serif;font-size:1.9rem;font-weight:800;color:var(--green);text-align:center;margin:6px 0 2px}
+.s3lbl{font-size:0.52rem;color:var(--muted);text-align:center;margin-bottom:14px}
+.s3i{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,0.04);border-radius:9px;padding:7px 10px;margin-bottom:5px}
+.s3l{display:flex;align-items:center;gap:7px;font-size:0.56rem}
+.s3d{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.s3v{font-size:0.56rem;font-weight:700}
+
+/* PRIVACY */
+.pbox{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-xl);overflow:hidden}
+.pin{display:grid;grid-template-columns:1fr 1fr}
+@media(max-width:820px){.pin{grid-template-columns:1fr}}
+.pl{padding:48px 44px;border-right:1px solid var(--border)}
+@media(max-width:820px){.pl{border-right:none;border-bottom:1px solid var(--border);padding:34px 22px}}
+.pl h2{font-size:clamp(1.5rem,2.4vw,2.1rem);font-weight:800;margin-bottom:12px}
+.pl h2 .g{color:var(--green)}
+.pl>p{color:var(--muted);font-size:0.92rem;margin-bottom:22px}
+.pps{display:flex;flex-direction:column;gap:11px}
+.pp{display:flex;align-items:center;gap:12px;background:rgba(0,229,160,0.05);border:1px solid rgba(0,229,160,0.11);border-radius:12px;padding:11px 15px}
+.ppi{font-size:1.2rem;flex-shrink:0}
+.pp strong{display:block;font-size:0.84rem;margin-bottom:1px}
+.pp span{font-size:0.74rem;color:var(--muted)}
+.pr{padding:48px 44px;display:flex;flex-direction:column;gap:18px}
+@media(max-width:820px){.pr{padding:34px 22px}}
+.pnum{font-family:'Syne',sans-serif;font-size:2.5rem;font-weight:800;line-height:1;background:linear-gradient(90deg,var(--cyan),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.plbl{font-size:0.82rem;color:var(--muted);margin-top:3px}
+.pdiv{height:1px;background:var(--border)}
+
+/* CTA */
+#cta{padding:70px 0 90px}
+.cbox{background:linear-gradient(135deg,rgba(0,229,255,0.05),rgba(124,92,252,0.07));border:1px solid rgba(0,229,255,0.11);border-radius:var(--r-xl);text-align:center;padding:68px 28px;position:relative;overflow:hidden}
+.cbox::before{content:'';position:absolute;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(0,229,255,0.07),transparent 70%);top:-100px;left:50%;transform:translateX(-50%);pointer-events:none}
+.cbox h2{font-size:clamp(1.7rem,3.2vw,2.6rem);font-weight:800;margin-bottom:12px;position:relative}
+.cbox>p{color:var(--muted);font-size:0.96rem;margin-bottom:34px;max-width:420px;margin-left:auto;margin-right:auto;position:relative}
+.cbtns{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;position:relative}
+
+/* FOOTER */
+footer{border-top:1px solid var(--border);padding:42px 0;position:relative;z-index:1}
+.fin{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:22px}
+.flogo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.12rem;display:flex;align-items:center;gap:8px}
+.fmeta{font-size:0.76rem;color:var(--muted);margin-top:5px}
+.fmeta a{color:var(--muted);transition:color 0.2s}
+.fmeta a:hover{color:var(--cyan)}
+.flinks{display:flex;gap:22px;flex-wrap:wrap;align-items:center}
+.flinks a{color:var(--muted);font-size:0.84rem;transition:color 0.2s}
+.flinks a:hover{color:var(--cyan)}
+.fcopy{text-align:center;font-size:0.72rem;color:rgba(107,122,147,0.42);margin-top:22px;padding-top:22px;border-top:1px solid var(--border)}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:rgba(0,229,255,0.16);border-radius:99px}
+</style>
 </head>
 <body>
-  <h1>SS Dev Studio</h1>
-  <p>Official website of SS Dev Studio apps.</p>
-  <p>Privacy-first Android apps focused on control and productivity.</p>
+
+<!-- MOBILE MENU -->
+<div class="mob-menu" id="mobMenu">
+  <button class="mob-close" id="mobClose">✕</button>
+  <a href="#features" class="mob-link">Features</a>
+  <a href="#how" class="mob-link">How It Works</a>
+  <a href="#screens" class="mob-link">App Preview</a>
+  <a href="#privacy" class="mob-link">Privacy</a>
+  <a href="https://play.google.com/store/apps/details?id=com.sumit.appnetoff&pcampaignid=web_share"
+     target="_blank" rel="noopener"
+     class="btn btn-glow" style="margin-top:8px">Download App</a>
+</div>
+
+<!-- NAVBAR -->
+<nav id="nav">
+  <div class="wrap nav-row">
+    <a href="#" class="nav-logo"><span class="nav-dot"></span>AppNetOff</a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#how">How It Works</a></li>
+      <li><a href="#screens">App Preview</a></li>
+      <li><a href="#privacy">Privacy</a></li>
+    </ul>
+    <a href="https://play.google.com/store/apps/details?id=com.sumit.appnetoff&pcampaignid=web_share"
+       target="_blank" rel="noopener"
+       class="btn btn-glow nav-dl">Download</a>
+    <button class="burger" id="burgerBtn" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="wrap">
+    <div class="hero-grid">
+
+      <!-- text -->
+      <div class="hero-text">
+        <div class="chip">🔒 Privacy-First VPN Tool</div>
+        <h1>Control Your<br/><span class="hl">Internet Access</span></h1>
+        <p class="hero-tagline">Private by Design. No Tracking. No Data Collection.</p>
+        <p class="hero-desc">Control your internet access, block apps, and protect your privacy with a simple and powerful VPN-based system.</p>
+        <div class="hero-btns">
+          <a href="https://play.google.com/store/apps/details?id=com.sumit.appnetoff&pcampaignid=web_share"
+             target="_blank" rel="noopener"
+             class="btn btn-glow">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.35c.33.18.7.17 1.02-.02l14.3-8.27-3.08-3.08-12.24 11.37zM.54 1.55A1.5 1.5 0 0 0 .36 2.3v19.4c0 .27.06.52.18.75L13.1 12 .54 1.55zM20.83 9.5l-2.4-1.39L15.1 12l3.33 3.33 2.4-1.38A1.64 1.64 0 0 0 21.73 12c0-.63-.34-1.2-.9-1.5zM4.2.67C3.88.48 3.51.47 3.18.65L15.42 12 4.2.67z"/></svg>
+            Download App
+          </a>
+          <a href="#how" class="btn btn-outline">How It Works →</a>
+        </div>
+      </div>
+
+      <!-- phone -->
+      <div class="phone-wrap">
+        <div class="fbadge fbadge1">🛡️ VPN Active</div>
+        <div class="fbadge fbadge2">✓ Zero Logs</div>
+        <div class="phone">
+          <!-- status bar -->
+          <div class="p-status">
+            <span>5:50</span>
+            <span style="display:flex;align-items:center;gap:5px">
+              <span class="p-vpntag">VPN</span> 2.00 KB/S &nbsp;📶 🔋41%
+            </span>
+          </div>
+          <!-- header -->
+          <div class="p-header">
+            <div class="p-appname">AppNet<span class="off">Off</span></div>
+            <div class="p-icons">☀️ 🕐 ⚙️</div>
+          </div>
+          <!-- protection banner -->
+          <div class="p-banner">
+            <div class="p-shield">🛡️</div>
+            <div>
+              <div class="p-ban-title">PROTECTION OFF</div>
+              <div class="p-ban-sub">Tap the button below to secure<br/>your connection</div>
+            </div>
+          </div>
+          <!-- search -->
+          <div class="p-search">🔍 &nbsp;Search apps...</div>
+          <!-- app list -->
+          <div class="p-applist">
+            <div class="p-appcard">
+              <div class="p-ico" style="background:#fff">▶️</div>
+              <div class="p-info"><div class="p-name">YouTube</div><div class="p-pkg">youtube</div></div>
+              <div class="p-toggles">
+                <div class="p-trow"><span class="p-ticon">📶</span><div class="tog on"></div></div>
+                <div class="p-trow"><span class="p-ticon">📡</span><div class="tog off"></div></div>
+              </div>
+            </div>
+            <div class="p-appcard">
+              <div class="p-ico" style="background:#1d4ed8;color:#fff;font-family:'Syne',sans-serif;font-size:0.6rem;font-weight:900;letter-spacing:-0.02em">5G</div>
+              <div class="p-info"><div class="p-name">5G Only</div><div class="p-pkg">fivegonly</div></div>
+              <div class="p-toggles">
+                <div class="p-trow"><span class="p-ticon">📶</span><div class="tog off"></div></div>
+                <div class="p-trow"><span class="p-ticon">📡</span><div class="tog off"></div></div>
+              </div>
+            </div>
+          </div>
+          <!-- guard button -->
+          <div class="p-guard">🌐🔒 &nbsp;GUARD OFF</div>
+          <!-- tabs -->
+          <div class="p-tabs">
+            <div class="p-tab active"><span class="p-tab-i">🕐</span>Recent</div>
+            <div class="p-tab"><span class="p-tab-i">⊞</span>Installed</div>
+            <div class="p-tab"><span class="p-tab-i">⚙️</span>System</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="chip">Features</div>
+      <h2>Everything You Need to Stay Private</h2>
+      <p>A powerful yet simple toolkit to put you back in control of your digital life.</p>
+    </div>
+    <div class="feat-grid">
+      <div class="fc"><div class="fci ic">🚫</div><h3>App Blocking</h3><p>Block specific apps from accessing the internet. Control WiFi and mobile data access separately for each app.</p></div>
+      <div class="fc"><div class="fci ig">🔒</div><h3>Privacy First</h3><p>No account, no telemetry, no analytics. Your data never leaves your device — period. Everything stays local.</p></div>
+      <div class="fc"><div class="fci ip">🛡️</div><h3>VPN-Based Security</h3><p>Uses Android's built-in VPN framework to filter traffic at OS level. Rock-solid and completely local.</p></div>
+      <div class="fc"><div class="fci ic">🎛️</div><h3>Simple Controls</h3><p>One tap to protect. A clean, distraction-free interface means you spend less time in settings and more time focused.</p></div>
+      <div class="fc"><div class="fci ig">⚡</div><h3>Lightweight & Fast</h3><p>Minimal battery impact and near-zero latency overhead. Runs silently in the background without slowing you down.</p></div>
+      <div class="fc"><div class="fci ip">📡</div><h3>No Tracking</h3><p>No third-party SDKs, no crash reporters, no ad networks. Free from the very trackers it helps you block.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="chip">How It Works</div>
+      <h2>Three Steps to Total Control</h2>
+      <p>Setup takes under a minute. No configuration wizards, no confusing menus.</p>
+    </div>
+    <div class="steps">
+      <div class="step"><div class="snum">1</div><div class="semo">📱</div><h3>Select Apps</h3><p>Browse your installed apps and choose which ones to block. Toggle WiFi and mobile data independently per app.</p></div>
+      <div class="step"><div class="snum">2</div><div class="semo">⚡</div><h3>Turn ON Guard</h3><p>Hit the Guard button. AppNetOff activates a local VPN session that filters traffic on-device. No external server.</p></div>
+      <div class="step"><div class="snum">3</div><div class="semo">🎯</div><h3>Enjoy Focus Mode</h3><p>Blocked apps can no longer reach the internet. Work, study, or relax distraction-free — on your own terms.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- SCREENS -->
+<section id="screens">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="chip">App Preview</div>
+      <h2>Built for Simplicity</h2>
+      <p>A clean, modern interface you'll actually enjoy using every day.</p>
+    </div>
+    <div class="sgrid">
+
+      <!-- Dashboard -->
+      <div class="scard">
+        <div class="sbody">
+          <div class="srow"><div class="stitle">Dashboard</div><div class="sbadge">● Active</div></div>
+          <div class="ring"><div class="ring-in"><div class="ri">🔐</div><div class="rt">SECURE</div></div></div>
+          <div class="sgrid2">
+            <div class="sbox"><div class="sval">14</div><div class="slbl">Apps Blocked</div></div>
+            <div class="sbox"><div class="sval">0 B</div><div class="slbl">Data Leaked</div></div>
+            <div class="sbox"><div class="sval">8h 21m</div><div class="slbl">Protected Today</div></div>
+            <div class="sbox"><div class="sval">100%</div><div class="slbl">Privacy Score</div></div>
+          </div>
+        </div>
+        <div class="slabel">Dashboard</div>
+      </div>
+
+      <!-- App Manager -->
+      <div class="scard">
+        <div class="sbody">
+          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.8rem;margin-bottom:10px">Manage Apps</div>
+          <div class="ss">🔍 &nbsp;Search apps...</div>
+          <div class="ssec">Social</div>
+          <div class="sr"><div class="srl"><span style="font-size:0.9rem">📸</span><div><div class="sn">Instagram</div><div class="ssb">Meta Platforms</div></div></div><span class="cbl">Blocked</span></div>
+          <div class="sr"><div class="srl"><span style="font-size:0.9rem">▶️</span><div><div class="sn">YouTube</div><div class="ssb">Google LLC</div></div></div><span class="cbl">Blocked</span></div>
+          <div class="ssec" style="margin-top:9px">Productivity</div>
+          <div class="sr"><div class="srl"><span style="font-size:0.9rem">📧</span><div><div class="sn">Gmail</div><div class="ssb">Google LLC</div></div></div><span class="cal">Allowed</span></div>
+          <div class="sr"><div class="srl"><span style="font-size:0.9rem">💬</span><div><div class="sn">WhatsApp</div><div class="ssb">Meta Platforms</div></div></div><span class="cal">Allowed</span></div>
+        </div>
+        <div class="slabel">App Manager</div>
+      </div>
+
+      <!-- Privacy Report -->
+      <div class="scard">
+        <div class="sbody">
+          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.8rem;margin-bottom:3px">Privacy Report</div>
+          <div style="font-size:0.52rem;color:var(--muted);margin-bottom:2px">Last 7 days</div>
+          <div class="s3big">147</div>
+          <div class="s3lbl">Requests Blocked</div>
+          <div class="s3i"><div class="s3l"><div class="s3d" style="background:#ff5050"></div>Trackers</div><div class="s3v" style="color:#ff5050">89</div></div>
+          <div class="s3i"><div class="s3l"><div class="s3d" style="background:#ffaa00"></div>Analytics</div><div class="s3v" style="color:#ffaa00">34</div></div>
+          <div class="s3i"><div class="s3l"><div class="s3d" style="background:var(--purple)"></div>Ad Networks</div><div class="s3v" style="color:var(--purple)">24</div></div>
+          <div class="s3i"><div class="s3l"><div class="s3d" style="background:var(--green)"></div>Safe Requests</div><div class="s3v" style="color:var(--green)">412</div></div>
+        </div>
+        <div class="slabel">Privacy Report</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- PRIVACY -->
+<section id="privacy">
+  <div class="wrap">
+    <div class="pbox">
+      <div class="pin">
+        <div class="pl">
+          <div class="chip">Our Promise</div>
+          <h2>Your Privacy Is<br/><span class="g">Non-Negotiable</span></h2>
+          <p>AppNetOff was built with one belief: your data belongs to you. We enforce this technically — not just as a promise on paper.</p>
+          <div class="pps">
+            <div class="pp"><div class="ppi">💾</div><div><strong>Everything Stored Locally</strong><span>All settings live on your device. Nothing synced to any remote server.</span></div></div>
+            <div class="pp"><div class="ppi">📡</div><div><strong>No Analytics or Tracking</strong><span>Zero third-party SDKs. No crash reporting. No usage metrics.</span></div></div>
+            <div class="pp"><div class="ppi">🗂️</div><div><strong>No Data Collection</strong><span>We do not collect, store, or sell any personal information. Ever.</span></div></div>
+          </div>
+        </div>
+        <div class="pr">
+          <div><div class="pnum">0</div><div class="plbl">Bytes of user data ever collected</div></div>
+          <div class="pdiv"></div>
+          <div><div class="pnum">100%</div><div class="plbl">On-device processing — no cloud</div></div>
+          <div class="pdiv"></div>
+          <div><div class="pnum">0</div><div class="plbl">Third-party trackers inside the app</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <div class="wrap">
+    <div class="cbox">
+      <div class="chip">Get Started Free</div>
+      <h2>Take Back Your Privacy Today</h2>
+      <p>Join thousands of users who decided their phone should work for them — not for advertisers. Free. No sign-up. Always.</p>
+      <div class="cbtns">
+        <a href="https://play.google.com/store/apps/details?id=com.sumit.appnetoff&pcampaignid=web_share"
+           target="_blank" rel="noopener"
+           class="btn btn-glow">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.35c.33.18.7.17 1.02-.02l14.3-8.27-3.08-3.08-12.24 11.37zM.54 1.55A1.5 1.5 0 0 0 .36 2.3v19.4c0 .27.06.52.18.75L13.1 12 .54 1.55zM20.83 9.5l-2.4-1.39L15.1 12l3.33 3.33 2.4-1.38A1.64 1.64 0 0 0 21.73 12c0-.63-.34-1.2-.9-1.5zM4.2.67C3.88.48 3.51.47 3.18.65L15.42 12 4.2.67z"/></svg>
+          Download Now — It's Free
+        </a>
+        <a href="https://ssdevstudio.com/privacy-policy.html"
+           target="_blank" rel="noopener"
+           class="btn btn-outline">Privacy Policy</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="fin">
+      <div>
+        <div class="flogo"><span class="nav-dot"></span>AppNetOff</div>
+        <div class="fmeta">Private by Design. No Tracking. No Data Collection.</div>
+        <div class="fmeta" style="margin-top:5px">📧 <a href="mailto:ssdevstudio@gmail.com">ssdevstudio@gmail.com</a></div>
+      </div>
+      <div class="flinks">
+        <a href="#features">Features</a>
+        <a href="#how">How It Works</a>
+        <a href="https://ssdevstudio.com/privacy-policy.html" target="_blank" rel="noopener">Privacy Policy</a>
+        <a href="app-ads.txt">app-ads.txt</a>
+      </div>
+    </div>
+    <div class="fcopy">© 2026 AppNetOff Studio · Made with 🔒 for privacy-conscious users · All rights reserved.</div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  /* Sticky nav */
+  var nav = document.getElementById('nav');
+  window.addEventListener('scroll', function(){ nav.classList.toggle('stuck', window.scrollY > 30); }, {passive:true});
+
+  /* Mobile menu open/close */
+  var menu = document.getElementById('mobMenu');
+  document.getElementById('burgerBtn').addEventListener('click', function(){ menu.classList.add('open'); document.body.style.overflow='hidden'; });
+  document.getElementById('mobClose').addEventListener('click', function(){ menu.classList.remove('open'); document.body.style.overflow=''; });
+
+  /* Close mob menu on any mob-link click */
+  document.querySelectorAll('.mob-link').forEach(function(a){
+    a.addEventListener('click', function(){ menu.classList.remove('open'); document.body.style.overflow=''; });
+  });
+
+  /* Smooth anchor scroll (desktop nav only, since mob links just close the menu then let browser scroll) */
+  document.querySelectorAll('a[href^="#"]').forEach(function(a){
+    a.addEventListener('click', function(e){
+      var id = this.getAttribute('href');
+      if(id === '#') return;
+      var t = document.querySelector(id);
+      if(t){ e.preventDefault(); t.scrollIntoView({behavior:'smooth', block:'start'}); }
+    });
+  });
+})();
+</script>
 </body>
 </html>
